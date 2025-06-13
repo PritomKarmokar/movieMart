@@ -3,13 +3,27 @@ const jwt = require('jsonwebtoken')
 const { Router } = require('express')
 const logger = require("../config/logger")
 const { Admin } = require('../models/admin')
+const { adminSignupSchema } = require("../validator/admin")
 
 const router = Router()
 
 router.post('/signup', async (req, res) => {
-    const { username, password } = req.body
 
     try {
+        const validationResult = adminSignupSchema.safeParse(req.body)
+
+        if (!validationResult.success) {
+
+            logger.info("Validation Error at Admin Sign Up Route")
+
+            return res.status(400).json({
+                msg: "Validation failed",
+                errors: validationResult.error.issues
+            })
+        }
+
+        const { username, password } = validationResult.data
+
         const adminUser = await Admin.findOne({ username: username })
 
         if (adminUser) {
