@@ -32,7 +32,7 @@ const adminMiddleware = async (req, res, next) => {
 
     } catch (err) {
         logger.error(`Error Occurred in Admin Middleware: ${err}`)
-        return res.status(403).json({ msg: "Invalid or expired token" });
+        return res.status(403).json({ msg: "Invalid or expired token" })
     }
 }
 

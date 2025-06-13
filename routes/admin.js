@@ -41,7 +41,6 @@ router.post('/signup', async (req, res) => {
 
         const newAdminUser = new Admin({ username, password: hashedPassword });
 
-
         await newAdminUser.save()
 
         logger.info('New Admin User Created Successfully')

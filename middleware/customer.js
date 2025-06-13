@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const config = require('../config/setup')
+const logger = require("../config/logger")
 
 const customerMiddleware = async (req, res, next) => {
     try {
@@ -19,17 +20,20 @@ const customerMiddleware = async (req, res, next) => {
         const token = parts[1]
         jwt.verify(token, config.jwt_secret, (err, user) => {
             if (err) {
+                logger.error(`Customer Middleware error: ${err}`)
+
                 return res.status(403).json({
                     msg: "Invalid or expired token"
                 })
             }
             req.user = user
-            console.log(user)
+            // console.log(user)
             next()
         })
+
     } catch (err) {
-        console.log(`Error Occurred in Customer Middleware: ${err}`)
-        return res.status(403).json({ msg: "Invalid or expired token" });
+        logger.error(`Error Occurred in Customer Middleware: ${err}`)
+        return res.status(403).json({ msg: "Invalid or expired token" })
     }
 }
 
