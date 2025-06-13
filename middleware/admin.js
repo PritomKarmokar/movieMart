@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const logger = require("../config/logger")
 const config = require('../config/setup')
 
 const adminMiddleware = async (req, res, next) => {
@@ -19,6 +20,8 @@ const adminMiddleware = async (req, res, next) => {
         const token = parts[1]
         jwt.verify(token, config.jwt_secret, (err, user) => {
             if (err) {
+                logger.error(`Auth middleware error: ${err}`)
+
                 return res.status(403).json({
                     msg: "Invalid or expired token"
                 })
@@ -27,8 +30,8 @@ const adminMiddleware = async (req, res, next) => {
             next()
         })
 
-    } catch {
-        console.log(`Error Occurred in Admin Middleware: ${err}`)
+    } catch (err) {
+        logger.error(`Error Occurred in Admin Middleware: ${err}`)
         return res.status(403).json({ msg: "Invalid or expired token" });
     }
 }

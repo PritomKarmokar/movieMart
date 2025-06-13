@@ -5,7 +5,7 @@ const movieSchema = new mongoose.Schema({
     genre: { type: String, required: true },
     description: { type: String },
     rentalPrice: { type: Number, required: true },
-    isAvailable: { type: Boolean, required: true },
+    isAvailable: { type: Boolean, default: true },
     piecesAvailable: { type: Number, required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: null },
