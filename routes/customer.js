@@ -6,6 +6,7 @@ const logger = require('../config/logger')
 const { Movie } = require('../models/movie')
 const { Customer } = require('../models/customer')
 const customerMiddleware = require('../middleware/customer')
+const formatDateTime = require('../helpers/date_format')
 const { signupSchema, signinSchema } = require('../validator/baseAuth')
 
 const router = Router()
@@ -134,6 +135,76 @@ router.post('/rent/movie/:movieId', customerMiddleware, async (req, res) => {
         return res.status(400).json({
             msg: "Error Occurred during renting movie"
         })
+    }
+})
+
+router.get('/movies', customerMiddleware, async (req, res) => {
+    const allMovies = await Movie.find({})
+
+    if (allMovies.length == 0) {
+        return res.status(202).json({
+            msg: "Sorry, currently no movies are available, we're adding asap"
+        })
+    }
+
+    const movies = allMovies.map(movie => ({
+        id: movie._id,
+        title: movie.title,
+        genre: movie.genre,
+        description: movie.description,
+        rentalPrice: movie.rentalPrice,
+        piecesAvailable: movie.piecesAvailable,
+        addedAt: formatDateTime(movie.createdAt)
+    }))
+
+    res.status(200).json({
+        msg: "Available Movies",
+        movies: movies
+    })
+})
+
+router.get('/rentedMovies', customerMiddleware, async (req, res) => {
+    try {
+
+        const customer = await Customer.findOne({ username: req.user.username })
+
+        if (!customer || !customer.rentedMovies || customer.rentedMovies.length === 0) {
+            return res.status(404).json({
+                msg: "No rented movies available"
+            });
+        }
+
+        const movies = await Movie.find({
+            _id: {
+                "$in": customer.rentedMovies
+            }
+        })
+
+        if (movies.length === 0) {
+            return res.status(202).json({
+                msg: "No movies info available"
+            })
+        }
+
+        const moviesInfo = movies.map(movie => ({
+            id: movie._id,
+            title: movie.title,
+            genre: movie.genre,
+            description: movie.description,
+            price: movie.rentalPrice,
+        }))
+
+        res.status(200).json({
+            msg: "All rented movies",
+            movies: moviesInfo
+        })
+
+    } catch (err) {
+        logger.error(`Error fetching rented movies: ${err}`);
+
+        return res.status(500).json({
+            msg: "An error occurred while fetching rented movies"
+        });
     }
 })
 
