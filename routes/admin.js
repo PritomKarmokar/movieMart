@@ -5,7 +5,6 @@ const config = require("../config/setup")
 const logger = require("../config/logger")
 const { Admin } = require('../models/admin')
 const { signupSchema, signinSchema } = require("../validator/baseAuth")
-const e = require('express')
 
 const router = Router()
 
